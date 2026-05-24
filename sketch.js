@@ -61,7 +61,7 @@ let menuImages;
 const defaultImages = [
   "zebra.png",
   "mask.png",
-  "hugo.jpg",
+  "hands.jpeg",
   "manypupuner.jpg",
   "me.jpeg"
 ];
