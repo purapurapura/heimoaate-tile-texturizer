@@ -298,14 +298,16 @@ function createUI() {
 
   negativeButton.parent(btnRow);
 
-  negativeButton.mousePressed(() => {
+ negativeButton.mousePressed(() => {
 
-    img.filter(INVERT);
+  workingImg.filter(INVERT);
 
-    img.loadPixels();
+  workingImg.loadPixels();
 
-    needsUpdate = true;
-  });
+  updateDitherBase();
+
+  needsUpdate = true;
+});
 
   saveButton =
     createButton('SAVE');
