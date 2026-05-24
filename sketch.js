@@ -402,7 +402,7 @@ function uiChanged() {
 
   rectS =
     max(
-      10,
+      5,
       int(sizeSlider.value())
     );
 
