@@ -661,13 +661,19 @@ function applyNewImage(newImg) {
 
   processed.drawingContext.imageSmoothingEnabled = false;
 
-  displayOffsetX =
-    floor(
-      (
-        windowWidth -
-        canvasDisplayWidth
-      ) * 0.5
-    );
+ let uiWidth = 340;
+
+let freeSpaceWidth =
+  windowWidth - uiWidth;
+
+displayOffsetX =
+  floor(
+    uiWidth +
+    (
+      freeSpaceWidth -
+      canvasDisplayWidth
+    ) * 0.5
+  );
 
   displayOffsetY =
     floor(
