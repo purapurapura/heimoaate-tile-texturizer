@@ -232,7 +232,7 @@ function createUI() {
   sizeSlider =
     createLabeledSlider(
       "SIZE",
-      1,
+      5,
       50,
       15,
       1
