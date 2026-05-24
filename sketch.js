@@ -53,8 +53,8 @@ let uploadInput;
 let menuImages;
 
 const defaultImages = [
+  "zebra.png",
   "mask.png",
-  "zebra3.png",
   "hugo.jpg",
   "manypupuner.jpg",
   "me.jpeg"
@@ -88,7 +88,7 @@ const baseNames = [
 
 function preload() {
 
-  img = loadImage("./data/zebra3.png");
+  img = loadImage("./data/zebra.png");
 
   for (let i = 0; i < totalShapes; i++) {
 
@@ -226,7 +226,7 @@ function createUI() {
   sizeSlider =
     createLabeledSlider(
       "SIZE",
-      10,
+      5,
       50,
       15,
       1
