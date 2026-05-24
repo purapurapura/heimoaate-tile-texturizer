@@ -232,7 +232,7 @@ function createUI() {
   sizeSlider =
     createLabeledSlider(
       "SIZE",
-      5,
+      1,
       50,
       15,
       1
@@ -252,7 +252,7 @@ function createUI() {
       "THRESHOLD",
       0,
       255,
-      150,
+      255,
       1
     );
 
