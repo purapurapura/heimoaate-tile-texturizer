@@ -298,14 +298,20 @@ function createUI() {
 
   negativeButton.parent(btnRow);
 
- negativeButton.mousePressed(() => {
+negativeButton.mousePressed(() => {
 
+  // 1. инверсия пространства анализа
   workingImg.filter(INVERT);
-
   workingImg.loadPixels();
 
-  updateDitherBase();
+  // 2. сброс якоря восприятия (ВАЖНО для стабильности mask)
+let r = 255 - red(selectedColor);
+let g = 255 - green(selectedColor);
+let b = 255 - blue(selectedColor);
 
+selectedColor = color(r, g, b);
+
+  // 3. принудительный пересчёт сцены
   needsUpdate = true;
 });
 
