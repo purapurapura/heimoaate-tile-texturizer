@@ -5,6 +5,7 @@
 // ----------------------------------------------------
 
 let img;
+let workingImg;
 let processed;
 
 const totalShapes = 13;
@@ -22,6 +23,12 @@ let selectedColor;
 let needsUpdate = true;
 
 // ----------------------------------------------------
+// EXPORT
+// ----------------------------------------------------
+
+let exportScale = 2;
+
+// ----------------------------------------------------
 // DISPLAY
 // ----------------------------------------------------
 
@@ -34,8 +41,6 @@ let canvasDisplayHeight = 100;
 let displayOffsetX = 0;
 let displayOffsetY = 0;
 
-let workingImg;
-
 // ----------------------------------------------------
 // UI
 // ----------------------------------------------------
@@ -46,6 +51,7 @@ let sizeSlider;
 let thresholdSlider;
 let hueSlider;
 let ditherSlider;
+let exportSlider;
 
 let negativeButton;
 let saveButton;
@@ -53,8 +59,8 @@ let uploadInput;
 let menuImages;
 
 const defaultImages = [
-  "zebra.png",
   "mask.png",
+  "zebra3.png",
   "hugo.jpg",
   "manypupuner.jpg",
   "me.jpeg"
@@ -88,7 +94,7 @@ const baseNames = [
 
 function preload() {
 
-  img = loadImage("./data/zebra.png");
+  img = loadImage("./data/zebra3.png");
 
   for (let i = 0; i < totalShapes; i++) {
 
@@ -123,6 +129,8 @@ function setup() {
   processed = createGraphics(1, 1);
 
   processed.noSmooth();
+
+  processed.drawingContext.imageSmoothingEnabled = false;
 
   calculateShapeColors();
 
@@ -178,8 +186,6 @@ function createUI() {
     'none'
   );
 
-  // CLICK PROTECTION
-
   panelContainer.elt.addEventListener(
     'mousedown',
     (e) => {
@@ -226,7 +232,7 @@ function createUI() {
   sizeSlider =
     createLabeledSlider(
       "SIZE",
-      5,
+      10,
       50,
       15,
       1
@@ -259,12 +265,27 @@ function createUI() {
       1
     );
 
+  exportSlider =
+    createLabeledSlider(
+      "EXPORT SCALE",
+      1,
+      8,
+      2,
+      1
+    );
+
   sizeSlider.input(uiChanged);
   hueSlider.input(uiChanged);
   thresholdSlider.input(uiChanged);
   ditherSlider.input(uiChanged);
 
-  // BUTTON ROW
+  exportSlider.input(() => {
+
+    exportScale =
+      int(exportSlider.value());
+  });
+
+  // BUTTONS
 
   let btnRow = createDiv('');
 
@@ -318,7 +339,7 @@ function createUI() {
     '100%'
   );
 
-  // DROPDOWN
+  // IMAGE MENU
 
   let menuRow =
     createDiv('SELECT IMAGE');
@@ -426,7 +447,7 @@ function rebuildImage() {
 
   processed.clear();
 
-  processed.imageMode(CENTER);
+  processed.imageMode(CORNER);
 
   let sr = red(selectedColor);
   let sg = green(selectedColor);
@@ -445,10 +466,26 @@ function rebuildImage() {
     ) {
 
       let px =
-        floor(gx + rectS * 0.5);
+        floor(
+          map(
+            gx,
+            0,
+            processed.width,
+            0,
+            workingImg.width
+          )
+        );
 
       let py =
-        floor(gy + rectS * 0.5);
+        floor(
+          map(
+            gy,
+            0,
+            processed.height,
+            0,
+            workingImg.height
+          )
+        );
 
       px =
         constrain(
@@ -527,23 +564,28 @@ function rebuildImage() {
         (floor(gx / rectS) % 4) +
         (floor(gy / rectS) % 4) * 4;
 
+      // INTEGER SNAP
+      let drawX = floor(gx);
+      let drawY = floor(gy);
+
+      // OVERLAP FIX
+      let overlap = 0.8;
+
       processed.image(
         tiles[sIdx][tIdx],
-        gx + rectS * 0.5,
-        gy + rectS * 0.5,
-        rectS,
-        rectS
+        drawX,
+        drawY,
+        rectS + overlap,
+        rectS + overlap
       );
     }
   }
-
-  processed.imageMode(CORNER);
 }
 
 
 
 // ----------------------------------------------------
-// IMAGE LOADING
+// APPLY IMAGE
 // ----------------------------------------------------
 
 function applyNewImage(newImg) {
@@ -580,11 +622,8 @@ function applyNewImage(newImg) {
 
   workingImg.loadPixels();
 
-  // DISPLAY SIZE
-
   let ratio =
-    workingImg.width /
-    workingImg.height;
+    img.width / img.height;
 
   canvasDisplayHeight =
     min(
@@ -620,7 +659,7 @@ function applyNewImage(newImg) {
 
   processed.noSmooth();
 
-  // CENTERING
+  processed.drawingContext.imageSmoothingEnabled = false;
 
   displayOffsetX =
     floor(
@@ -651,22 +690,54 @@ function applyNewImage(newImg) {
 
 function exportRender() {
 
+  let exportW =
+    processed.width *
+    exportScale;
+
+  let exportH =
+    processed.height *
+    exportScale;
+
+  // SAFETY LIMIT
+
+  let maxPixels = 16000000;
+
+  if (
+    exportW * exportH >
+    maxPixels
+  ) {
+
+    let scale =
+      sqrt(
+        maxPixels /
+        (exportW * exportH)
+      );
+
+    exportW =
+      floor(exportW * scale);
+
+    exportH =
+      floor(exportH * scale);
+  }
+
   let exportCanvas =
     createGraphics(
-      workingImg.width,
-      workingImg.height
+      exportW,
+      exportH
     );
+
+  exportCanvas.pixelDensity(1);
 
   exportCanvas.noSmooth();
 
-  exportCanvas.imageMode(CENTER);
+  exportCanvas.drawingContext.imageSmoothingEnabled = false;
 
-  let scaleX =
-    workingImg.width /
-    processed.width;
+  exportCanvas.clear();
+
+  exportCanvas.imageMode(CORNER);
 
   let exportRectS =
-    rectS * scaleX;
+    rectS * exportScale;
 
   let sr = red(selectedColor);
   let sg = green(selectedColor);
@@ -674,44 +745,56 @@ function exportRender() {
 
   for (
     let gx = 0;
-    gx < workingImg.width;
+    gx < exportW;
     gx += exportRectS
   ) {
 
     for (
       let gy = 0;
-      gy < workingImg.height;
+      gy < exportH;
       gy += exportRectS
     ) {
 
-      let px =
+      let sampleX =
         floor(
-          gx + exportRectS * 0.5
+          map(
+            gx,
+            0,
+            exportW,
+            0,
+            workingImg.width
+          )
         );
 
-      let py =
+      let sampleY =
         floor(
-          gy + exportRectS * 0.5
+          map(
+            gy,
+            0,
+            exportH,
+            0,
+            workingImg.height
+          )
         );
 
-      px =
+      sampleX =
         constrain(
-          px,
+          sampleX,
           0,
           workingImg.width - 1
         );
 
-      py =
+      sampleY =
         constrain(
-          py,
+          sampleY,
           0,
           workingImg.height - 1
         );
 
       let idx =
         4 * (
-          px +
-          py * workingImg.width
+          sampleX +
+          sampleY * workingImg.width
         );
 
       let r =
@@ -765,12 +848,19 @@ function exportRender() {
         (floor(gx / exportRectS) % 4) +
         (floor(gy / exportRectS) % 4) * 4;
 
+      // INTEGER SNAP
+      let drawX = floor(gx);
+      let drawY = floor(gy);
+
+      // SEAM FIX
+      let overlap = 1.0;
+
       exportCanvas.image(
         tiles[sIdx][tIdx],
-        gx + exportRectS * 0.5,
-        gy + exportRectS * 0.5,
-        exportRectS,
-        exportRectS
+        drawX,
+        drawY,
+        exportRectS + overlap,
+        exportRectS + overlap
       );
     }
   }
