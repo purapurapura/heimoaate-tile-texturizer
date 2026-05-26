@@ -1,9 +1,6 @@
 // noprotect
 
-// ----------------------------------------------------
 // MAIN
-// ----------------------------------------------------
-
 let img;
 let workingImg;
 let processed;
@@ -22,15 +19,8 @@ let selectedColor;
 
 let needsUpdate = true;
 
-// ----------------------------------------------------
-// EXPORT
-// ----------------------------------------------------
-
 let exportScale = 2;
 
-// ----------------------------------------------------
-// DISPLAY
-// ----------------------------------------------------
 
 const MAX_WORKING_SIZE = 1024;
 const MAX_DISPLAY_HEIGHT = 900;
@@ -40,10 +30,6 @@ let canvasDisplayHeight = 100;
 
 let displayOffsetX = 0;
 let displayOffsetY = 0;
-
-// ----------------------------------------------------
-// UI
-// ----------------------------------------------------
 
 let panelContainer;
 
@@ -66,9 +52,6 @@ const defaultImages = [
   "me.jpeg"
 ];
 
-// ----------------------------------------------------
-// DATA
-// ----------------------------------------------------
 
 const baseNames = [
   "komi",
@@ -86,11 +69,6 @@ const baseNames = [
   "nganasan"
 ];
 
-
-
-// ----------------------------------------------------
-// PRELOAD
-// ----------------------------------------------------
 
 function preload() {
 
@@ -110,11 +88,6 @@ function preload() {
   }
 }
 
-
-
-// ----------------------------------------------------
-// SETUP
-// ----------------------------------------------------
 
 function setup() {
 
@@ -141,11 +114,6 @@ function setup() {
   applyNewImage(img);
 }
 
-
-
-// ----------------------------------------------------
-// UI
-// ----------------------------------------------------
 
 function createUI() {
 
@@ -285,8 +253,6 @@ function createUI() {
       int(exportSlider.value());
   });
 
-  // BUTTONS
-
   let btnRow = createDiv('');
 
   btnRow.parent(panelContainer);
@@ -300,18 +266,15 @@ function createUI() {
 
 negativeButton.mousePressed(() => {
 
-  // 1. инверсия пространства анализа
   workingImg.filter(INVERT);
   workingImg.loadPixels();
 
-  // 2. сброс якоря восприятия (ВАЖНО для стабильности mask)
 let r = 255 - red(selectedColor);
 let g = 255 - green(selectedColor);
 let b = 255 - blue(selectedColor);
 
 selectedColor = color(r, g, b);
 
-  // 3. принудительный пересчёт сцены
   needsUpdate = true;
 });
 
@@ -330,7 +293,6 @@ selectedColor = color(r, g, b);
     exportRender();
   });
 
-  // FILE INPUT
 
   uploadInput =
     createFileInput(handleFile);
@@ -347,7 +309,6 @@ selectedColor = color(r, g, b);
     '100%'
   );
 
-  // IMAGE MENU
 
   let menuRow =
     createDiv('SELECT IMAGE');
@@ -393,11 +354,6 @@ selectedColor = color(r, g, b);
 }
 
 
-
-// ----------------------------------------------------
-// UI UPDATE
-// ----------------------------------------------------
-
 function uiChanged() {
 
   rectS =
@@ -423,10 +379,6 @@ function uiChanged() {
 
 
 
-// ----------------------------------------------------
-// DRAW
-// ----------------------------------------------------
-
 function draw() {
 
   background(20);
@@ -445,11 +397,6 @@ function draw() {
   );
 }
 
-
-
-// ----------------------------------------------------
-// MAIN RENDER
-// ----------------------------------------------------
 
 function rebuildImage() {
 
@@ -572,11 +519,9 @@ function rebuildImage() {
         (floor(gx / rectS) % 4) +
         (floor(gy / rectS) % 4) * 4;
 
-      // INTEGER SNAP
       let drawX = floor(gx);
       let drawY = floor(gy);
 
-      // OVERLAP FIX
       let overlap = 0.8;
 
       processed.image(
@@ -590,11 +535,6 @@ function rebuildImage() {
   }
 }
 
-
-
-// ----------------------------------------------------
-// APPLY IMAGE
-// ----------------------------------------------------
 
 function applyNewImage(newImg) {
 
@@ -697,11 +637,6 @@ displayOffsetX =
 }
 
 
-
-// ----------------------------------------------------
-// EXPORT
-// ----------------------------------------------------
-
 function exportRender() {
 
   let exportW =
@@ -711,8 +646,6 @@ function exportRender() {
   let exportH =
     processed.height *
     exportScale;
-
-  // SAFETY LIMIT
 
   let maxPixels = 16000000;
 
@@ -887,10 +820,6 @@ function exportRender() {
 
 
 
-// ----------------------------------------------------
-// HELPERS
-// ----------------------------------------------------
-
 function quantize(v, f) {
 
   return (
@@ -977,11 +906,6 @@ function findBestMatch(r, g, b) {
 }
 
 
-
-// ----------------------------------------------------
-// INTERACTION
-// ----------------------------------------------------
-
 function mousePressed(event) {
 
   if (
@@ -1038,10 +962,6 @@ function mousePressed(event) {
 
 
 
-// ----------------------------------------------------
-// RESIZE
-// ----------------------------------------------------
-
 function windowResized() {
 
   resizeCanvas(
@@ -1053,10 +973,6 @@ function windowResized() {
 }
 
 
-
-// ----------------------------------------------------
-// FILE INPUT
-// ----------------------------------------------------
 
 function handleFile(file) {
 
